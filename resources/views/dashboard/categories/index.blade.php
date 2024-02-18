@@ -50,8 +50,12 @@
                         <th>{{ $category->status }}</th>
                         <th>
                             <a href="{{ route('categories.edit', $category->id) }}" class="btn btn-sm btn-success">Edit</a>
-                            <a href="{{ route('categories.destroy', $category->id) }}"
-                                class="btn btn-sm btn-danger">Delete</a>
+
+                            <form action="{{ route('categories.destroy', $category->id) }}" method="POST" class="d-inline">
+                                @method('DELETE')
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
                         </th>
                     </tr>
                 @empty

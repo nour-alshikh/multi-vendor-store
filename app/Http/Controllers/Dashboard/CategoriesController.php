@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 
 class CategoriesController extends Controller
@@ -34,19 +33,18 @@ class CategoriesController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+        $parents = Category::where('id', '<>', $id)
+            ->where(function ($query) use ($id) {
+                $query->whereNull('parent_id')
+                    ->orWhere('parent_id', '<>', $id);
+            })
+            ->get();
+        return  view('dashboard.categories.edit', compact('category', 'parents'));
     }
 
     /**
@@ -54,14 +52,16 @@ class CategoriesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        $category->update($request->all());
+        return redirect('/dashboard/categories');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(string $id)
     {
-        //
+        Category::destroy($id);
+        return redirect('/dashboard/categories');
     }
 }
