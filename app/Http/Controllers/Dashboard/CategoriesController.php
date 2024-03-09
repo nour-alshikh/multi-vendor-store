@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CategoriesController extends Controller
@@ -20,7 +21,8 @@ class CategoriesController extends Controller
     {
 
         $parents = Category::all();
-        return  view('dashboard.categories.create', compact('parents'));
+        $category = new Category();
+        return  view('dashboard.categories.create', compact('parents', 'category'));
     }
 
     public function store(Request $request)
@@ -28,7 +30,16 @@ class CategoriesController extends Controller
         $request->merge([
             'slug' => Str::slug($request->name)
         ]);
-        Category::create($request->all());
+        $data = $request->except('image');
+        if ($request->has('image')) {
+            $file = $request->file('image');
+            $path = $file->store('uploads', 'public');
+
+
+            // dd($path);
+            $data['image'] = $path;
+        }
+        Category::create($data);
         return redirect('/dashboard/categories');
     }
 
@@ -53,8 +64,26 @@ class CategoriesController extends Controller
     public function update(Request $request, string $id)
     {
         $category = Category::findOrFail($id);
+        $old_image = $request->image;
+        $data = $request->except('image');
+
+        if ($request->hasFile('image')) {
+
+            $file = $request->file('image');
+            $path = $file->store('uploads', [
+                'disk' => 'public'
+            ]);
+
+            $data['image'] = $path;
+        }
+
 
         $category->update($request->all());
+
+        if ($old_image && isset($data['image'])) {
+            Storage::disk('public')->delete($old_image);
+        }
+
         return redirect('/dashboard/categories');
     }
 

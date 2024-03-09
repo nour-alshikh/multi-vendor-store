@@ -45,7 +45,7 @@
                         <th>{{ $i }}</th>
                         {{-- <th>{{$category->image}}</th> --}}
                         <th>{{ $category->name }}</th>
-                        <th>{{ $category->parent }}</th>
+                        <th>{{ $category->parent_id }}</th>
                         <th>{{ $category->description }}</th>
                         <th>{{ $category->status }}</th>
                         <th>
